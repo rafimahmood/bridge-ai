@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Enable with: git config core.hooksPath .githooks
+exec uv run python scripts/privacy_check.py --names --history

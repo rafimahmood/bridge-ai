@@ -11,4 +11,4 @@ jobs:
       - run: uv run ruff format --check .
       - run: uv run pytest
       - name: Privacy guard
-        run: bash scripts/privacy_check.sh
+        run: python3 scripts/privacy_check.py
