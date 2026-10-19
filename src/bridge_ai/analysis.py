@@ -103,6 +103,7 @@ def openings(df: pd.DataFrame, name: str) -> pd.DataFrame:
             continue
         seat_no, call = info
         hand = r[f"hand_{r['seat']}"]
+        alerted = str(seat_no - 1) in str(r.get("alerted_calls", "")).split()
         rows.append(
             {
                 "hand_id": r["hand_id"],
@@ -111,7 +112,9 @@ def openings(df: pd.DataFrame, name: str) -> pd.DataFrame:
                 "vul": relative_vul(r["vulnerability"], r["seat"]),
                 "hcp": hcp(hand),
                 "shape": "".join(map(str, shape(hand))),
-                "anomaly": opening_anomaly(hand, call, seat_no),
+                "alerted": alerted,
+                # an alerted call is artificial by definition, so it is never a psych
+                "anomaly": None if alerted else opening_anomaly(hand, call, seat_no),
             }
         )
     return pd.DataFrame(rows)

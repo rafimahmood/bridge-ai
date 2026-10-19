@@ -46,4 +46,5 @@ def test_benchmark_command(tmp_path):
     runner.invoke(app, ["import", str(SAMPLE), "--out", str(out)])
     r = runner.invoke(app, ["benchmark", "--player", "carol", "--dataset", str(out)])
     assert r.exit_code == 0, r.output
-    assert "Hands benchmarked: 2" in r.output
+    assert "All hands: 2 hands" in r.output
+    assert "vs humans: 2 hands" in r.output

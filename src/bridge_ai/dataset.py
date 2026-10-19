@@ -21,7 +21,7 @@ COLUMNS = [
     "hand_id", "date", "time", "event_type", "board", "dealer", "vulnerability",
     "hand_N", "hand_E", "hand_S", "hand_W",
     "player_N", "player_E", "player_S", "player_W",
-    "auction", "opening_lead", "play", "claim",
+    "auction", "alerted_calls", "opening_lead", "play", "claim",
     "contract", "level", "strain", "doubled", "declarer",
     "tricks", "result", "ns_score", "table_score", "match_points", "source",
 ]  # fmt: skip
@@ -61,6 +61,7 @@ def row_to_record(row: RawRow) -> dict:
         "dealer": deal.dealer,
         "vulnerability": deal.vulnerability,
         "auction": " ".join(deal.auction),
+        "alerted_calls": " ".join(map(str, deal.alerted_calls)),
         "opening_lead": deal.opening_lead,
         "play": " ".join(deal.play),
         "claim": deal.claim,

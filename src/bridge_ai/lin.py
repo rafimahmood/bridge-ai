@@ -40,6 +40,7 @@ class Deal:
     play: list[str]  # cards as 'HK', in play order
     claim: int | None = None  # tricks claimed (declarer's), if any
     alerts: int = 0
+    alerted_calls: list[int] = field(default_factory=list)  # indices into auction
     contract: Contract | None = None
     extra: dict[str, str] = field(default_factory=dict)
 
@@ -69,7 +70,8 @@ def parse_hand(text: str) -> str:
     for s in suits:
         if any(ch not in RANKS for ch in s):
             raise LinError(f"bad card in hand {text!r}")
-    return ".".join(suits)
+    # LIN does not guarantee high-to-low order within a suit
+    return ".".join("".join(sorted(s, key=RANKS.index)) for s in suits)
 
 
 def _complete_hands(hands: dict[str, str]) -> dict[str, str]:
@@ -127,6 +129,7 @@ def parse_lin(lin: str) -> Deal:
     play: list[str] = []
     claim = None
     alerts = 0
+    alerted_calls: list[int] = []
     extra: dict[str, str] = {}
     for tag, val in pairs:
         if tag == "md":
@@ -142,7 +145,8 @@ def parse_lin(lin: str) -> Deal:
         elif tag == "pn":
             names = val.split(",")
             for seat, name in zip("SWNE", names, strict=False):
-                players[seat] = name.strip()
+                name = name.strip()
+                players[seat] = "GiB" if name.startswith("~~") else name  # BBO robot
         elif tag == "ah":
             m = re.search(r"(\d+)", val)
             board = int(m.group(1)) if m else None
@@ -155,8 +159,12 @@ def parse_lin(lin: str) -> Deal:
             if not CALL_RE.match(call):
                 raise LinError(f"bad call {val!r}")
             auction.append(call.upper())
+            if val.endswith("!"):
+                alerted_calls.append(len(auction) - 1)
         elif tag == "an":
             alerts += 1
+            if auction and len(auction) - 1 not in alerted_calls:
+                alerted_calls.append(len(auction) - 1)
         elif tag == "pc":
             card = val.upper()
             if len(card) != 2 or card[0] not in SUITS or card[1] not in RANKS:
@@ -185,6 +193,7 @@ def parse_lin(lin: str) -> Deal:
         play=play,
         claim=claim,
         alerts=alerts,
+        alerted_calls=alerted_calls,
         extra=extra,
     )
     deal.contract = contract_from_auction(auction, dealer)

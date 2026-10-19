@@ -9,6 +9,12 @@ PARTNER = {"N": "S", "S": "N", "E": "W", "W": "E"}
 ROBOTS = {"gib", ""}
 
 
+def is_robot(df: pd.DataFrame, seats: list[str]) -> pd.Series:
+    """True where any of the given seats is a BBO robot (GiB)."""
+    flags = [df[f"player_{s}"].str.lower() == "gib" for s in seats]
+    return pd.concat(flags, axis=1).any(axis=1)
+
+
 def player_counts(df: pd.DataFrame, include_robots: bool = False) -> pd.Series:
     names = pd.concat([df[f"player_{s}"] for s in SEATS])
     key = names.str.lower()
@@ -32,6 +38,9 @@ def player_hands(df: pd.DataFrame, name: str) -> pd.DataFrame:
         sub["my_score"] = sub["ns_score"] * sign
         sub["is_declarer"] = sub["declarer"] == seat
         sub["is_dummy"] = sub["declarer"] == PARTNER[seat]
+        opps = [x for x in SEATS if x not in (seat, PARTNER[seat])]
+        sub["opponents"] = is_robot(sub, opps).map({True: "robots", False: "humans"})
+        sub["partner_is_robot"] = sub[f"player_{PARTNER[seat]}"].str.lower() == "gib"
         frames.append(sub)
     out = pd.concat(frames) if frames else df.iloc[0:0]
     return out.sort_values(["date", "time"]).reset_index(drop=True)

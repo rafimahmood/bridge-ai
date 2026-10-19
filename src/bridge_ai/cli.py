@@ -85,12 +85,14 @@ def benchmark(
     if pb.empty:
         typer.echo(f"No scored hands for {player!r}.", err=True)
         raise typer.Exit(1)
-    s = dd_summary(pb)
-    typer.echo(f"Hands benchmarked: {s['hands']}")
-    typer.echo(f"Average IMPs vs par: {s['avg_imps_vs_par']}")
-    typer.echo(
-        f"Declarer: {s['declarer_tricks_vs_dd']} tricks vs double dummy on average; "
-        f"matched or beat DD {s['declarer_beat_or_equal_dd_pct']}% of the time"
-    )
-    typer.echo(f"Defence held declarer to DD or better: {s['defence_held_dd_pct']}%")
-    typer.echo(f"Matched par exactly: {s['par_matched_pct']}%")
+    groups = [("All hands", pb)] + [(f"vs {k}", g) for k, g in pb.groupby("opponents")]
+    for label, g in groups:
+        s = dd_summary(g)
+        typer.echo(f"\n{label}: {s['hands']} hands")
+        typer.echo(f"  Average IMPs vs par: {s['avg_imps_vs_par']}")
+        typer.echo(
+            f"  Declarer: {s['declarer_tricks_vs_dd']} tricks vs double dummy on average; "
+            f"matched or beat DD {s['declarer_beat_or_equal_dd_pct']}% of the time"
+        )
+        typer.echo(f"  Defence held declarer to DD or better: {s['defence_held_dd_pct']}%")
+        typer.echo(f"  Matched par exactly: {s['par_matched_pct']}%")

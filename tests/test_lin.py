@@ -75,6 +75,7 @@ def test_alert_suffix_alerts_and_claim():
     d = parse_lin(f"md|3{HANDS}|sv|o|mb|1C!|an|Precision|mb|p|mc|11|")
     assert d.auction == ["1C", "P"]
     assert d.alerts == 1
+    assert d.alerted_calls == [0]
     assert d.claim == 11
 
 
@@ -99,3 +100,18 @@ def test_malformed_lin_raises(lin):
 def test_short_hand_rejected():
     with pytest.raises(LinError):
         parse_lin("md|3SAKHQDJCT,SAKHQDJCT,SAKHQDJCT,SAKHQDJCT|")
+
+
+def test_robot_names_are_normalised():
+    d = parse_lin(f"pn|Alice,~~A1234abc,Carol,~~Zz99|md|3{HANDS}|sv|o|")
+    assert d.players == {"S": "Alice", "W": "GiB", "N": "Carol", "E": "GiB"}
+
+
+def test_bang_suffix_marks_alerted_call():
+    d = parse_lin(f"md|3{HANDS}|sv|o|mb|p|mb|1D!|mb|p|mb|2C|an|natural|")
+    assert d.alerted_calls == [1, 3]
+
+
+def test_cards_are_sorted_high_to_low_within_suits():
+    assert parse_hand("S56710JH268JD48C35") == "JT765.J862.84.53"
+    assert parse_hand("SQ9H2DT5CA43") == "Q9.2.T5.A43"

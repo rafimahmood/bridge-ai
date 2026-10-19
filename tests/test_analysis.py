@@ -114,3 +114,14 @@ def test_leads_and_results_on_fixture():
     assert bob_leads.iloc[0]["rank"] == "J"
     patterns = result_patterns(df, "carol")
     assert set(patterns["role"]) == {"declarer"}
+
+
+def test_alerted_opening_is_not_a_psych():
+    df, _ = build_dataset([SAMPLE])
+    df.loc[0, "hand_N"] = "432.432.432.5432"  # 0 HCP opening 1S
+    df.loc[0, "alerted_calls"] = ""
+    plain = openings(df, "carol")
+    assert plain.iloc[0]["anomaly"] is not None and not plain.iloc[0]["alerted"]
+    df.loc[0, "alerted_calls"] = "0"
+    alerted = openings(df, "carol")
+    assert alerted.iloc[0]["alerted"] and alerted.iloc[0]["anomaly"] is None
