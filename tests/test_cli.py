@@ -39,3 +39,11 @@ def test_player_counts_merge_case_variants():
     )  # fmt: skip
     counts = player_counts(df)
     assert counts["Ann"] == 2 and "GiB" not in counts.index
+
+
+def test_benchmark_command(tmp_path):
+    out = tmp_path / "h.parquet"
+    runner.invoke(app, ["import", str(SAMPLE), "--out", str(out)])
+    r = runner.invoke(app, ["benchmark", "--player", "carol", "--dataset", str(out)])
+    assert r.exit_code == 0, r.output
+    assert "Hands benchmarked: 2" in r.output

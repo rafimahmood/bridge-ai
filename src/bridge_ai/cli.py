@@ -8,6 +8,8 @@ import pandas as pd
 import typer
 
 from .dataset import build_dataset, find_pages
+from .ddbench import add_double_dummy, player_benchmark
+from .ddbench import summary as dd_summary
 from .stats import player_counts, summarise
 
 app = typer.Typer(help="Analyse bridge hands from Bridge Base Online.", no_args_is_help=True)
@@ -70,3 +72,25 @@ def stats(
     typer.echo(f"Average score (own side): {s['avg_score']}")
     typer.echo(f"Top contracts declared: {s['top_contracts_declared']}")
     typer.echo(f"Top partners: {s['partners']}")
+
+
+@app.command()
+def benchmark(
+    player: str = typer.Option(..., "--player", help="BBO username (case-insensitive)"),
+    dataset: Path = typer.Option(CACHE),
+) -> None:
+    """Compare a player's actual results with double-dummy results and par."""
+    df = add_double_dummy(_load(dataset))
+    pb = player_benchmark(df, player)
+    if pb.empty:
+        typer.echo(f"No scored hands for {player!r}.", err=True)
+        raise typer.Exit(1)
+    s = dd_summary(pb)
+    typer.echo(f"Hands benchmarked: {s['hands']}")
+    typer.echo(f"Average IMPs vs par: {s['avg_imps_vs_par']}")
+    typer.echo(
+        f"Declarer: {s['declarer_tricks_vs_dd']} tricks vs double dummy on average; "
+        f"matched or beat DD {s['declarer_beat_or_equal_dd_pct']}% of the time"
+    )
+    typer.echo(f"Defence held declarer to DD or better: {s['defence_held_dd_pct']}%")
+    typer.echo(f"Matched par exactly: {s['par_matched_pct']}%")
