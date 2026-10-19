@@ -1,0 +1,34 @@
+[project]
+name = "bridge-ai"
+version = "0.1.0"
+description = "Analyse bridge hands from Bridge Base Online and build towards an AI opponent model."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pandas>=2.2",
+    "typer>=0.12",
+    "endplay>=0.5",
+]
+
+[project.scripts]
+bridge-ai = "bridge_ai.cli:app"
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.6", "nbstripout>=0.7", "jupyter>=1.0", "matplotlib>=3.9"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/bridge_ai"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,33 @@
+# --- PRIVACY: real data must never be committed ---
+data/
+.cache/
+*.csv
+*.parquet
+*.feather
+*.pkl
+*.sqlite
+*.db
+*.lin
+*.js
+*.html
+!tests/fixtures/**
+
+# Secrets
+.env
+.env.*
+*.pem
+*.key
+secrets*
+
+# Notebook outputs / checkpoints
+.ipynb_checkpoints/
+
+# Python
+__pycache__/
+*.egg-info/
+.venv/
+.pytest_cache/
+.ruff_cache/
+dist/
+build/
+.DS_Store
