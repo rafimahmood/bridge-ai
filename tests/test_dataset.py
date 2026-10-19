@@ -37,7 +37,7 @@ def test_made_game_row():
     r = df.iloc[0]
     assert (r.contract, r.declarer, r.tricks, r.result) == ("4S", "N", 10, "=")
     assert r.ns_score == 420 == r.table_score
-    assert r.opening_lead == "HK"
+    assert r.opening_lead == "HJ"
     assert r.player_N == "Carol" and r.player_S == "Alice"
     assert r.hand_N == "AKJ4.KT9.K76.J98"
 
