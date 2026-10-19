@@ -8,6 +8,7 @@ dependencies = [
     "pandas>=2.2",
     "typer>=0.12",
     "endplay>=0.5",
+    "pyarrow>=26.0.0",
 ]
 
 [project.scripts]
@@ -29,6 +30,9 @@ src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["typer.Option", "typer.Argument"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
