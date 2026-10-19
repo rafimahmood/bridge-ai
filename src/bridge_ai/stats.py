@@ -11,7 +11,10 @@ ROBOTS = {"gib", ""}
 
 def player_counts(df: pd.DataFrame, include_robots: bool = False) -> pd.Series:
     names = pd.concat([df[f"player_{s}"] for s in SEATS])
-    counts = names.value_counts()
+    key = names.str.lower()
+    display = names.groupby(key).agg(lambda x: x.value_counts().index[0])
+    counts = key.value_counts()
+    counts.index = counts.index.map(display)
     if not include_robots:
         counts = counts[~counts.index.str.lower().isin(ROBOTS)]
     return counts

@@ -26,3 +26,16 @@ def test_stats_unknown_player_and_missing_dataset(tmp_path):
     runner.invoke(app, ["import", str(SAMPLE), "--out", str(out)])
     assert runner.invoke(app, ["stats", "--player", "zed", "--dataset", str(out)]).exit_code == 1
     assert runner.invoke(app, ["players", "--dataset", str(tmp_path / "no.parquet")]).exit_code == 1
+
+
+def test_player_counts_merge_case_variants():
+    import pandas as pd
+
+    from bridge_ai.stats import player_counts
+
+    df = pd.DataFrame(
+        {"player_N": ["Ann", "ann"], "player_E": ["GiB", "GiB"], "player_S": ["Bo", "Bo"],
+         "player_W": ["Cy", "Cy"]}
+    )  # fmt: skip
+    counts = player_counts(df)
+    assert counts["Ann"] == 2 and "GiB" not in counts.index
